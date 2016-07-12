@@ -1,0 +1,9 @@
+.git
+.gitignore
+.Rbuildignore
+.travis.yml
+appveyor.yml
+README.Rmd
+CONTRIBUTING.md
+^revdep$
+.Rproj

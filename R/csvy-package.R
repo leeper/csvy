@@ -1,0 +1,6 @@
+#' @name csvy
+#' @docType package 
+#' @aliases csvy csvy-package
+#' @title Import and Export CSV Data With a YAML Metadata Header
+#' @description CSVY is a file format that combines the simplicity of CSV (comma-separated values) with the metadata of other plain text and binary formats (JSON, XML, Stata, etc.). The \href{http://csvy.org/}{CSVY file specification} is simple: place a YAML header on top of a regular CSV. The csvy package implements this format using two functions: \code{\link{write_csvy}} and \code{\link{read_csvy}}.
+NULL
