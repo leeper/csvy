@@ -6,12 +6,19 @@
 #' @param sep2 A character string specifying a within-field separator. Passed to \code{\link[utils]{write.table}}.
 #' @param comment_header A logical indicating whether to comment the lines containing the YAML front matter. Default is \code{TRUE}.
 #' @param \dots Additional arguments passed to \code{\link[utils]{write.table}}.
+#' @examples
+#' library("datasets")
+#' write_csvy(head(iris))
+#' 
+#' # write yaml w/o comment charaters
+#' write_csvy(head(iris), comment_header = FALSE)
+#' 
 #' @importFrom stats setNames
 #' @importFrom utils write.table
 #' @importFrom yaml as.yaml
 #' @export
 #' @seealso \code{\link{write_csvy}}
-write_csvy <- function(x, file, sep = ",", sep2 = ".", comment_header = TRUE, ...) {
+write_csvy <- function(x, file = "", sep = ",", sep2 = ".", comment_header = TRUE, ...) {
     # write yaml
     a <- attributes(x)
     a <- a[!names(a) %in% c("names", "row.names")]
@@ -43,4 +50,5 @@ write_csvy <- function(x, file, sep = ",", sep2 = ".", comment_header = TRUE, ..
     
     # append CSV
     write.table(file = file, x = x, append = TRUE, sep = sep, dec = sep2, ...)
+    return(file)
 }

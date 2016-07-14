@@ -4,24 +4,30 @@
 \alias{read_csvy}
 \title{Import CSVY data}
 \usage{
-read_csvy(file, sep = "auto", sep2 = "auto", header = "auto",
-  stringsAsFactors = FALSE, ...)
+read_csvy(file, sep = ",", dec = ".", header = "auto",
+  stringsAsFactors = FALSE, method = c("utils", "data.table", "readr"), ...)
 }
 \arguments{
 \item{file}{A character string or R connection specifying a file.}
 
-\item{sep}{A character string specifying a between-field separator. Passed to \code{\link[data.table]{fread}}.}
+\item{sep}{A character string specifying a between-field separator. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'}.}
 
-\item{sep2}{A character string specifying a within-field separator. Passed to \code{\link[data.table]{fread}}.}
+\item{dec}{A character string specifying a within-field separator. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'}.}
 
-\item{header}{A character string or logical specifying whether the file contains a header row of column names (below the YAML frontmatter). Passed to \code{\link[data.table]{fread}}.}
+\item{header}{A character string or logical specifying whether the file contains a header row of column names (below the YAML frontmatter). Passed to \code{\link[utils]{read.csv}}, \code{\link[data.table]{fread}}, or \code{\link[readr]{read_csv}} depending on the value of \code{method}.}
 
-\item{stringsAsFactors}{A logical specifying whether to treat character columns as factors. Passed to \code{\link[data.table]{fread}}.}
+\item{stringsAsFactors}{A logical specifying whether to treat character columns as factors. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'} which never returns factors.}
 
-\item{\dots}{Additional arguments passed to \code{\link[data.table]{fread}}.}
+\item{method}{A character string specifying which package to use to read in the CSV data. Must be on of \dQuote{utils} (for \code{\link[utils]{read.csv}}), \dQuote{data.table} (for \code{\link[data.table]{fread}}), or \dQuote{readr} (for \code{\link[readr]{read_csv}}).}
+
+\item{\dots}{Additional arguments passed to \code{\link[utils]{read.csv}}, \code{\link[data.table]{fread}}, or \code{\link[readr]{read_csv}} depending on the value of \code{method}.}
 }
 \description{
 Import CSVY data as a data.frame
+}
+\examples{
+read_csvy(system.file("examples", "example3.csvy", package = "csvy"))
+
 }
 \seealso{
 \code{\link{write_csvy}}

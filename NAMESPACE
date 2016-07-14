@@ -2,8 +2,8 @@
 
 export(read_csvy)
 export(write_csvy)
-importFrom(data.table,fread)
 importFrom(stats,setNames)
+importFrom(utils,read.csv)
 importFrom(utils,write.table)
 importFrom(yaml,as.yaml)
 importFrom(yaml,yaml.load)

@@ -4,7 +4,8 @@
 \alias{write_csvy}
 \title{Export CSVY data}
 \usage{
-write_csvy(x, file, sep = ",", sep2 = ".", comment_header = TRUE, ...)
+write_csvy(x, file = "", sep = ",", sep2 = ".", comment_header = TRUE,
+  ...)
 }
 \arguments{
 \item{x}{A data.frame.}
@@ -21,6 +22,14 @@ write_csvy(x, file, sep = ",", sep2 = ".", comment_header = TRUE, ...)
 }
 \description{
 Export data.frame to CSVY
+}
+\examples{
+library("datasets")
+write_csvy(head(iris))
+
+# write yaml w/o comment charaters
+write_csvy(head(iris), comment_header = FALSE)
+
 }
 \seealso{
 \code{\link{write_csvy}}

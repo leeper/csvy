@@ -1,3 +1,7 @@
 # CHANGES TO v0.1.1 #
 
+ * Support for `readr::read_csv()` and `utils::read.csv()`. (#2)
+
+# CHANGES TO v0.1.1 #
+
  * Initial release
