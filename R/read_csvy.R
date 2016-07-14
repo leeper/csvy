@@ -18,6 +18,9 @@ read_csvy <- function(file, sep = ",", dec = ".", header = "auto", stringsAsFact
                       method = c("utils", "data.table", "readr"), ...) {
     # read in whole file
     f <- readLines(file)
+    if (!length(f)) {
+        stop("File does not exist or is empty")
+    }
   
     # identify yaml delimiters
     g <- grep("^#?---", f)
@@ -54,12 +57,51 @@ read_csvy <- function(file, sep = ",", dec = ".", header = "auto", stringsAsFact
         out <- readr::read_csv(file = dat, col_names = header, ...)
     }
   
+    # check metadata against header row
+    check_metadata(y, out)
+    
+    # add metadata to data
+    hnames <- lapply(y$fields, `[[`, "name")
     for (i in seq_along(y$fields)) {
-        attributes(out[, i]) <- y$fields[[i]]
+        attributes(out[, i]) <- y[["fields"]][[match(names(out)[1], hnames)]]
     }
     y$fields <- NULL
   
     meta <- c(list(out), y)
     out <- do.call("structure", meta)
     out
+}
+
+check_metadata <- function(metadata, data) {
+    hnames <- lapply(metadata$fields, `[[`, "name")
+    
+    missing_from_metadata <- names(data)[!names(data) %in% hnames]
+    if (length(missing_from_metadata)) {
+        warning("Metadata is missing for ", 
+                ngettext(length(missing_from_metadata), "variable", "variables"), 
+                " listed in data: ", paste(missing_from_metadata, collapse = ", "))
+    }
+    
+    missing_from_data <- unlist(hnames)[!unlist(hnames) %in% names(data)]
+    if (length(missing_from_data)) {
+        warning("Data is missing for ", 
+                ngettext(length(missing_from_data), "variable", "variables"), 
+                " listed in frontmatter: ", paste(missing_from_metadata, collapse = ", "))
+    }
+    
+    duplicated_metadata <- unlist(hnames)[duplicated(unlist(hnames))]
+    if (length(duplicated_metadata)) {
+        warning("Duplicate metadata entries for ", 
+                ngettext(length(duplicated_metadata), "variable", "variables"), 
+                " listed in frontmatter: ", paste(duplicated_metadata, collapse = ", "))
+    }
+    
+    duplicated_columns <- unlist(hnames)[duplicated(unlist(hnames))]
+    if (length(duplicated_columns)) {
+        warning("Duplicate column names for ", 
+                ngettext(length(duplicated_columns), "variable", "variables"), 
+                ": ", paste(duplicated_metadata, collapse = ", "))
+    }
+    
+    NULL
 }
