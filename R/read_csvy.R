@@ -63,7 +63,22 @@ read_csvy <- function(file, sep = ",", dec = ".", header = "auto", stringsAsFact
     # add metadata to data
     hnames <- lapply(y$fields, `[[`, "name")
     for (i in seq_along(y$fields)) {
-        attributes(out[, i]) <- y[["fields"]][[match(names(out)[1], hnames)]]
+        fields_this_col <- y[["fields"]][[match(names(out)[i], hnames)]]
+        if ("name" %in% names(fields_this_col)) {
+            fields_this_col[["name"]] <- NULL
+        }
+        if ("class" %in% names(fields_this_col)) {
+            if (fields_this_col[["class"]] == "factor") {
+                if (isTRUE(stringsAsFactors)) {
+                    try(out[,i] <- factor(out[,i], levels = fields_this_col[["levels"]]))
+                }
+            } else {
+                class(out[, i]) <- fields_this_col[["class"]]
+            }
+            fields_this_col[["class"]] <- NULL
+        }
+        attributes(out[, i]) <- fields_this_col
+        rm(fields_this_col)
     }
     y$fields <- NULL
   

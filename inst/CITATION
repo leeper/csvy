@@ -4,7 +4,7 @@ citHeader("To cite package 'csvy' in publications use:")
  vers <- paste("R package version", meta$Version)
  
  citEntry(entry="Manual",
-          title = "csvy: Import and Export CSV Data With a YAML Metadata Header",
+          title = "csvy: Import and Export CSV Data with a YAML Metadata Header",
           author = personList(as.person("Thomas J. Leeper")),
           year = year,
           note = vers,

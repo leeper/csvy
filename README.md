@@ -29,33 +29,83 @@ B,3,4.3
 Which we can read into R like this:
 
 
-```{r}
+
+```r
 library("csvy")
 str(read_csvy("inst/examples/readme.csvy"))
+```
+
+```
+## 'data.frame':	2 obs. of  3 variables:
+##  $ var1: atomic  A B
+##   ..- attr(*, "title")= chr "variable 1"
+##   ..- attr(*, "type")= chr "string"
+##   ..- attr(*, "description")= chr "explaining var1"
+##   ..- attr(*, "constraints")=List of 1
+##   .. ..$ :List of 1
+##   .. .. ..$ required: logi TRUE
+##  $ var2: atomic  1 3
+##   ..- attr(*, "title")= chr "variable 2"
+##   ..- attr(*, "type")= chr "integer"
+##  $ var3: atomic  2.5 4.3
+##   ..- attr(*, "title")= chr "variable 3"
+##   ..- attr(*, "type")= chr "number"
+##  - attr(*, "name")= chr "my-dataset"
 ```
 
 Optional comment characters on the YAML lines make the data readable with any standard CSV parser while retaining the ability to import and export variable- and file-level metadata. The CSVY specification does not use these, but the csvy package for R does so that you (and other users) can continue to rely on `utils::read.csv()` or `readr::read_csv()` as usual. The `import()` in [rio](https://cran.r-project.org/package=rio) supports CSVY natively.
 
 To create a CSVY file from R, just do:
 
-```{r}
+
+```r
 library("csvy")
 library("datasets")
 write_csvy(iris, "iris.csvy")
 ```
 
+```
+## Warning in write.table(file = file, x = x, append = TRUE, sep = sep, dec =
+## sep2, : appending column names to file
+```
+
+```
+## [1] "iris.csvy"
+```
+
 To read a CSVY into R, just do:
 
-```{r}
+
+```r
 d1 <- read_csvy("iris.csvy")
 str(d1)
 ```
 
+```
+## 'data.frame':	150 obs. of  5 variables:
+##  $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+##  $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+##  $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+##  $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+##  $ Species     : atomic  setosa setosa setosa setosa ...
+##   ..- attr(*, "levels")= chr  "setosa" "versicolor" "virginica"
+```
+
 or use any other appropriate data import function to ignore the YAML metadata:
 
-```{r}
+
+```r
 d2 <- utils::read.table("iris.csvy", sep = ",")
 str(d2)
+```
+
+```
+## 'data.frame':	150 obs. of  5 variables:
+##  $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+##  $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+##  $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+##  $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+##  $ Species     : Factor w/ 3 levels "setosa","versicolor",..: 1 1 1 1 1 1 1 1 1 1 ...
 ```
 
 
