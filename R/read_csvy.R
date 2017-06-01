@@ -15,7 +15,7 @@
 #' @export
 #' @seealso \code{\link{write_csvy}}
 read_csvy <- function(file, sep = ",", dec = ".", header = "auto", stringsAsFactors = FALSE, 
-                      method = c("utils", "data.table", "readr"), ...) {
+                      method = c("utils", "data.table", "readr"), colClasses=NA, ...) {
     # read in whole file
     f <- readLines(file)
     if (!length(f)) {
@@ -38,23 +38,39 @@ read_csvy <- function(file, sep = ",", dec = ".", header = "auto", stringsAsFact
         y <- gsub("^#", "", y)
     }
     y <- yaml.load(paste(y, collapse = "\n"))
+
+    ## Init colClasses from name/class -properties unless given
+    if ( missing(colClasses)) {
+        for (i in seq_along(y$fields)) {
+            name <- y$fields[[i]]$name
+            cl <- y$fields[[i]]$class
+            
+            if ( !is.null(cl) && !is.null(name) ) {
+                                        # init colClasses only if class && name given
+                colClasses <- if ( anyNA(colClasses )) c() else colClasses
+                colClasses <- c( colClasses, setNames( cl, name ))
+            }
+        }
+    }
     
     # load the data
     method <- match.arg(method)
     dat <- paste0(f[(g[2]+1):length(f)], collapse = "\n")
     if (method == "utils") {
         out <- read.csv(text = dat, 
+                        colClasses=colClasses,
                         sep = if (sep == "auto") "," else sep, 
                         dec = if (dec == "auto") "." else dec, 
                         stringsAsFactors = stringsAsFactors, ...)
     } else if (method == "data.table") {
         requireNamespace("data.table")
         out <- data.table::fread(input = dat, 
+                                 colClasses=colClasses,
                                  sep = sep, sep2 = dec, header = header, 
                                  stringsAsFactors = stringsAsFactors, ...)
     } else if (method == "readr") {
         requireNamespace("readr")
-        out <- readr::read_csv(file = dat, col_names = header, ...)
+        out <- readr::read_csv(file = dat, col_names = header, colClasses=colClasses, ...)
     }
   
     # check metadata against header row
@@ -77,7 +93,8 @@ read_csvy <- function(file, sep = ",", dec = ".", header = "auto", stringsAsFact
             }
             fields_this_col[["class"]] <- NULL
         }
-        attributes(out[, i]) <- fields_this_col
+        ## attributes(out[, i]) <- fields_this_col
+        attributes(out[, i]) <- append( attributes(out[,i]), fields_this_col)
         rm(fields_this_col)
     }
     y$fields <- NULL

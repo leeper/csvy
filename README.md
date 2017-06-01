@@ -1,5 +1,11 @@
 # Import and Export CSV Data With a YAML Metadata Header #
 
+THIS IS PATCHED VERSION, which parses `name` and `class` values in
+YAML fields property for `colClasses` parameter passed to underlying
+`read.csv`, `data.table::fread`, or `readr::read_csv` to have a better
+support for column classes( particularly Date -class).
+
+
 CSVY is a file format that combines the simplicity of CSV (comma-separated values) with the metadata of other plain text and binary formats (JSON, XML, Stata, etc.). The [CSVY file specification](http://csvy.org/) is simple: place a YAML header on top of a regular CSV. 
 
 A CSVY file looks like this:
