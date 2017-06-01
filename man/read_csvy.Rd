@@ -4,7 +4,7 @@
 \alias{read_csvy}
 \title{Import CSVY data}
 \usage{
-read_csvy(file, sep = ",", dec = ".", header = "auto",
+read_csvy(file, sep = ",", dec = ".", header = "auto", colClasses,
   stringsAsFactors = FALSE, method = c("utils", "data.table", "readr"), ...)
 }
 \arguments{
@@ -15,6 +15,8 @@ read_csvy(file, sep = ",", dec = ".", header = "auto",
 \item{dec}{A character string specifying a within-field separator. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'}.}
 
 \item{header}{A character string or logical specifying whether the file contains a header row of column names (below the YAML frontmatter). Passed to \code{\link[utils]{read.csv}}, \code{\link[data.table]{fread}}, or \code{\link[readr]{read_csv}} depending on the value of \code{method}.}
+
+\item{colClasses}{A character vector specifying the classes of columns to override default imports. This is passed, as appropriate, to the function determined by \code{method}.}
 
 \item{stringsAsFactors}{A logical specifying whether to treat character columns as factors. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'} which never returns factors.}
 
@@ -32,4 +34,3 @@ read_csvy(system.file("examples", "example3.csvy", package = "csvy"))
 \seealso{
 \code{\link{write_csvy}}
 }
-

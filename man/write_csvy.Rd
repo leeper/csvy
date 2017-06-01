@@ -34,4 +34,3 @@ write_csvy(head(iris), comment_header = FALSE)
 \seealso{
 \code{\link{write_csvy}}
 }
-
