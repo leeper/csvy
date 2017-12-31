@@ -9,6 +9,8 @@ Authors@R: c(person("Thomas J.", "Leeper",
                     comment = c(ORCID = "0000-0003-4097-6326"))
              )
 Description: Support for import from and export to the CSVY file format. CSVY is a file format that combines the simplicity of CSV (comma-separated values) with the metadata of other plain text and binary formats (JSON, XML, Stata, etc.) by placing a YAML header on top of a regular CSV. 
+URL: https://github.com/leeper/csvy
+BugReports: https://github.com/leeper/csvy/issues
 Imports:
     utils,
     yaml
