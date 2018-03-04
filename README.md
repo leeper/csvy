@@ -1,28 +1,33 @@
-# Import and Export CSV Data With a YAML Metadata Header #
+# Import and Export CSV Data With a YAML Metadata Header
 
-CSVY is a file format that combines the simplicity of CSV (comma-separated values) with the metadata of other plain text and binary formats (JSON, XML, Stata, etc.). The [CSVY file specification](http://csvy.org/) is simple: place a YAML header on top of a regular CSV. 
+CSVY is a file format that combines the simplicity of CSV (comma-separated values) with the metadata of other plain text and binary formats (JSON, XML, Stata, etc.). The [CSVY file specification](http://csvy.org/) is simple: place a YAML header on top of a regular CSV. The yaml header is formatted according to the [Table Schema](https://frictionlessdata.io/specs/table-schema/) of a [Tabular Data Package](https://frictionlessdata.io/specs/tabular-data-package/).
 
 A CSVY file looks like this:
 
 ```
 #---
 #name: my-dataset
-#fields:
-#  - name: var1
-#    title: variable 1
-#    type: string
-#    description: explaining var1
-#    constraints:
-#      - required: true
-#  - name: var2
-#    title: variable 2
-#    type: integer
-#  - name: var3
-#    title: variable 3
-#    type: number
-#---
+#resources:
+#- order: 1
+#  schema:
+#    fields:
+#    - name: var1
+#      type: string
+#    - name: var2
+#      type: integer
+#    - name: var3
+#      type: number
+#  dialect:
+#    csvddfVersion: 1.0
+#    delimiter: ","
+#    doubleQuote: false
+#    lineTerminator: "\r\n"
+#    quoteChar: "\""
+#    skipInitialSpace: true
+#    header: true
+---
 var1,var2,var3
-A,1,2.5
+A,1,2.0
 B,3,4.3
 ```
 
@@ -32,28 +37,19 @@ Which we can read into R like this:
 
 ```r
 library("csvy")
-str(read_csvy("inst/examples/readme.csvy"))
+str(read_csvy(system.file("examples", "example3.csvy", package = "csvy")))
 ```
 
 ```
 ## 'data.frame':	2 obs. of  3 variables:
-##  $ var1: atomic  A B
-##   ..- attr(*, "title")= chr "variable 1"
-##   ..- attr(*, "type")= chr "string"
-##   ..- attr(*, "description")= chr "explaining var1"
-##   ..- attr(*, "constraints")=List of 1
-##   .. ..$ :List of 1
-##   .. .. ..$ required: logi TRUE
-##  $ var2: atomic  1 3
-##   ..- attr(*, "title")= chr "variable 2"
-##   ..- attr(*, "type")= chr "integer"
-##  $ var3: atomic  2.5 4.3
-##   ..- attr(*, "title")= chr "variable 3"
-##   ..- attr(*, "type")= chr "number"
-##  - attr(*, "name")= chr "my-dataset"
+##  $ var1: chr  "A" "B"
+##  $ var2: int  1 3
+##  $ var3: num  2 4.3
 ```
 
-Optional comment characters on the YAML lines make the data readable with any standard CSV parser while retaining the ability to import and export variable- and file-level metadata. The CSVY specification does not use these, but the csvy package for R does so that you (and other users) can continue to rely on `utils::read.csv()` or `readr::read_csv()` as usual. The `import()` in [rio](https://cran.r-project.org/package=rio) supports CSVY natively.
+Optional comment characters on the YAML lines make the data readable with any standard CSV parser while retaining the ability to import and export variable- and file-level metadata. The CSVY specification does not use these, but the csvy package for R does so that you (and other users) can continue to rely on `utils::read.csv()` or `readr::read_csv()` as usual. The `import()` function in [rio](https://cran.r-project.org/package=rio) supports CSVY natively.
+
+### Export
 
 To create a CSVY file from R, just do:
 
@@ -64,14 +60,9 @@ library("datasets")
 write_csvy(iris, "iris.csvy")
 ```
 
-```
-## Warning in write.table(file = file, x = x, append = TRUE, sep = sep, dec =
-## sep2, : appending column names to file
-```
+It is also possible to export the metadata to separate YAML or JSON file (and then also possible to import from those separate files) by specifying the `metadata` field in `write_csvy()` and `read_csvy()`.
 
-```
-## [1] "iris.csvy"
-```
+### Import
 
 To read a CSVY into R, just do:
 
@@ -95,7 +86,7 @@ or use any other appropriate data import function to ignore the YAML metadata:
 
 
 ```r
-d2 <- utils::read.table("iris.csvy", sep = ",")
+d2 <- utils::read.table("iris.csvy", sep = ",", header = TRUE)
 str(d2)
 ```
 
@@ -110,7 +101,7 @@ str(d2)
 
 
 
-## Package Installation ##
+## Package Installation
 
 The package is available on [CRAN](https://cran.r-project.org/package=csvy) and can be installed directly in R using:
 

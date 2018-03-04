@@ -2,8 +2,11 @@
 
 export(read_csvy)
 export(write_csvy)
+importFrom(data.table,fread)
+importFrom(data.table,fwrite)
+importFrom(jsonlite,fromJSON)
+importFrom(jsonlite,write_json)
 importFrom(stats,setNames)
-importFrom(utils,read.csv)
-importFrom(utils,write.table)
+importFrom(tools,file_ext)
 importFrom(yaml,as.yaml)
 importFrom(yaml,yaml.load)

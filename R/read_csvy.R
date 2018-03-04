@@ -1,94 +1,125 @@
 #' @title Import CSVY data
 #' @description Import CSVY data as a data.frame
 #' @param file A character string or R connection specifying a file.
-#' @param sep A character string specifying a between-field separator. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'}.
-#' @param dec A character string specifying a within-field separator. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'}.
-#' @param header A character string or logical specifying whether the file contains a header row of column names (below the YAML frontmatter). Passed to \code{\link[utils]{read.csv}}, \code{\link[data.table]{fread}}, or \code{\link[readr]{read_csv}} depending on the value of \code{method}.
+#' @param metadata Optionally, a character string specifying a YAML (\dQuote{.yaml}) or JSON (\dQuote{.json}) file containing metadata (in lieu of including it in the header of the file).
 #' @param stringsAsFactors A logical specifying whether to treat character columns as factors. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'} which never returns factors.
-#' @param method A character string specifying which package to use to read in the CSV data. Must be on of \dQuote{utils} (for \code{\link[utils]{read.csv}}), \dQuote{data.table} (for \code{\link[data.table]{fread}}), or \dQuote{readr} (for \code{\link[readr]{read_csv}}).
-#' @param \dots Additional arguments passed to \code{\link[utils]{read.csv}}, \code{\link[data.table]{fread}}, or \code{\link[readr]{read_csv}} depending on the value of \code{method}.
+#' @param \dots Additional arguments passed to \code{\link[data.table]{fread}}.
 #' @examples
 #' read_csvy(system.file("examples", "example3.csvy", package = "csvy"))
 #' 
-#' @importFrom utils read.csv
+#' @importFrom tools file_ext
+#' @importFrom jsonlite fromJSON
+#' @importFrom data.table fread
 #' @importFrom yaml yaml.load
 #' @export
 #' @seealso \code{\link{write_csvy}}
-read_csvy <- function(file, sep = ",", dec = ".", header = "auto", stringsAsFactors = FALSE, 
-                      method = c("utils", "data.table", "readr"), ...) {
-    # read in whole file
-    f <- readLines(file)
-    if (!length(f)) {
-        stop("File does not exist or is empty")
-    }
-  
-    # identify yaml delimiters
-    g <- grep("^#?---", f)
-    if (length(g) > 2) {
-        stop("More than 2 yaml delimiters found in file")
-    } else if (length(g) == 1) {
-        stop("Only one yaml delimiter found")
-    } else if (length(g) == 0) {
-        stop("No yaml delimiters found")
+read_csvy <-
+function(
+    file,
+    metadata = NULL,
+    stringsAsFactors = FALSE,
+    ...
+) {
+    if (is.null(metadata)) {
+        # read in whole file
+        f <- readLines(file)
+        if (!length(f)) {
+            stop("File does not exist or is empty")
+        }
+        
+        # setup factor coercion conditional on presence of 'levels' metadata field
+        if (isTRUE(stringsAsFactors)) {
+            try_to_factorize <- "always"
+        } else if (stringsAsFactors == "conditional") {
+            stringsAsFactors <- FALSE
+            try_to_factorize <- "conditional"
+        } else {
+            try_to_factorize <- "never"
+        }
+        
+        
+        # identify yaml delimiters
+        g <- grep("^#?---", f)
+        if (length(g) > 2) {
+            stop("More than 2 yaml delimiters found in file")
+        } else if (length(g) == 1) {
+            stop("Only one yaml delimiter found")
+        } else if (length(g) == 0) {
+            ## no yaml header; just read file
+            message("No yaml delimiters found. Reading file as CSV.")
+            out <- data.table::fread(input = file, sep = "auto", header = "auto", 
+                                     stringsAsFactors = stringsAsFactors,
+                                     data.table = FALSE, ...)
+            return(out)
+        }
+        
+        # extract yaml front matter and convert to R list
+        metadata_list <- f[(g[1]+1):(g[2]-1)]
+        if (all(grepl("^#", metadata_list))) {
+            metadata_list <- gsub("^#", "", metadata_list)
+        }
+        metadata_list <- yaml::yaml.load(paste(metadata_list, collapse = "\n"))
+    } else {
+        ext <- tools::file_ext(metadata)
+        if (ext == "yaml") {
+            metadata_list <- yaml::yaml.load(paste(readLines(metadata), collapse = "\n"))
+        } else if (ext == "json") {
+            metadata_list <- jsonlite::fromJSON(metadata, simplifyDataFrame = FALSE)
+        } else {
+            warning("'metadata' should be either a .json or .yaml file.")
+        }
     }
     
-    # extract yaml front matter and convert to R list
-    y <- f[(g[1]+1):(g[2]-1)]
-    if (all(grepl("^#", y))) {
-        y <- gsub("^#", "", y)
+    # find variable-level metadata 'fields'
+    if ("fields" %in% names(metadata_list)) {
+        # this is a legacy
+        fields <- metadata_list$fields
+    } else if ("resources" %in% names(metadata_list)) {
+        # this is the current standard
+        # get first resource field (currently we don't support multiple resources)
+        fields <- metadata_list$resources[[1L]]$schema$fields
+    } else {
+        fields <- NULL
     }
-    y <- yaml.load(paste(y, collapse = "\n"))
+    
+    # find 'dialect' to use for importing, if available
+    if ("resources" %in% names(metadata_list)) {
+        dialect <- metadata_list$resources[[1L]]$dialect
+        ## delimiter
+        sep <- dialect$delimeter
+        ## header
+        header <- as.logical(dialect$header)
+        ## there are other args here but we really don't need them
+        ## need to decide how to use them
+    } else {
+        sep <- "auto"
+        header <- "auto"
+    }
     
     # load the data
-    method <- match.arg(method)
-    dat <- paste0(f[(g[2]+1):length(f)], collapse = "\n")
-    if (method == "utils") {
-        out <- read.csv(text = dat, 
-                        sep = if (sep == "auto") "," else sep, 
-                        dec = if (dec == "auto") "." else dec, 
-                        stringsAsFactors = stringsAsFactors, ...)
-    } else if (method == "data.table") {
-        requireNamespace("data.table")
-        out <- data.table::fread(input = dat, 
-                                 sep = sep, sep2 = dec, header = header, 
-                                 stringsAsFactors = stringsAsFactors, ...)
-    } else if (method == "readr") {
-        requireNamespace("readr")
-        out <- readr::read_csv(file = dat, col_names = header, ...)
+    if (is.null(metadata)) {
+        # if metadata in header, load only relevant lines of file
+        dat <- paste0(f[(g[2]+1):length(f)], collapse = "\n")
+        out <- data.table::fread(input = dat, sep = "auto", header = header, 
+                                 stringsAsFactors = stringsAsFactors, data.table = FALSE, ...)
+    } else {
+        # if metadata is separate file, load whole file
+        out <- data.table::fread(input = file, sep = sep, header = header, 
+                                 stringsAsFactors = stringsAsFactors, data.table = FALSE, ...)
     }
-  
-    # check metadata against header row
-    check_metadata(y, out)
     
     # add metadata to data
-    hnames <- lapply(y$fields, `[[`, "name")
-    for (i in seq_along(y$fields)) {
-        fields_this_col <- y[["fields"]][[match(names(out)[i], hnames)]]
-        if ("name" %in% names(fields_this_col)) {
-            fields_this_col[["name"]] <- NULL
-        }
-        if ("class" %in% names(fields_this_col)) {
-            if (fields_this_col[["class"]] == "factor") {
-                if (isTRUE(stringsAsFactors)) {
-                    try(out[,i] <- factor(out[,i], levels = fields_this_col[["levels"]]))
-                }
-            } else {
-                class(out[, i]) <- fields_this_col[["class"]]
-            }
-            fields_this_col[["class"]] <- NULL
-        }
-        attributes(out[, i]) <- fields_this_col
-        rm(fields_this_col)
-    }
-    y$fields <- NULL
-  
-    meta <- c(list(out), y)
-    out <- do.call("structure", meta)
-    out
+    out <- add_variable_metadata(data = out, fields = fields, try_to_factorize = try_to_factorize)
+    
+    return(out)
 }
 
-check_metadata <- function(metadata, data) {
-    hnames <- lapply(metadata$fields, `[[`, "name")
+check_variable_metadata <- function(data, fields) {
+    if (is.null(fields)) {
+        return(NULL)
+    }
+    
+    hnames <- lapply(fields, `[[`, "name")
     
     missing_from_metadata <- names(data)[!names(data) %in% hnames]
     if (length(missing_from_metadata)) {
@@ -119,4 +150,74 @@ check_metadata <- function(metadata, data) {
     }
     
     NULL
+}
+
+add_variable_metadata <- function(data, fields, try_to_factorize = "never") {
+    
+    # check metadata against header row
+    check_variable_metadata(data = data, fields = fields)
+    
+    # add metadata to data, iterating across metadata list
+    metadata_names <- lapply(fields, `[[`, "name")
+    for (i in seq_along(fields)) {
+        # grab attributes for this variable
+        fields_this_col <- fields[[i]]
+        
+        # add 'title' field
+        if ("title" %in% names(fields_this_col)) {
+            attr(data[[i]], "label") <- fields_this_col[["label"]]
+        }
+        # add 'description' field
+        if ("description" %in% names(fields_this_col)) {
+            attr(data[[i]], "description") <- fields_this_col[["description"]]
+        }
+        # handle 'type' and 'format' fields
+        ## 'type'
+        if ("type" %in% names(fields_this_col)) {
+            if (fields_this_col[["type"]] == "string") {
+                ## character/factor
+                if (try_to_factorize == "always") {
+                    # convert all character to factor
+                    if (is.null(fields_this_col[["levels"]])) {
+                        try(data[[i]] <- as.factor(data[[i]]))
+                    } else {
+                        try(data[[i]] <- factor(data[[i]], levels = fields_this_col[["levels"]]))
+                    }
+                } else if (try_to_factorize == "conditional") {
+                    # convert character to factor if levels are present
+                    if (is.null(fields_this_col[["levels"]])) {
+                        try(data[[i]] <- as.character(data[[i]]))
+                    } else {
+                        try(data[[i]] <- factor(data[[i]], levels = fields_this_col[["levels"]]))
+                    }
+                } else {
+                    # do not convert character to factor
+                    try(data[[i]] <- as.character(data[[i]]))
+                }
+            } else if (fields_this_col[["type"]] == "date") {
+                try(data[[i]] <- as.Date(data[[i]]))
+            } else if (fields_this_col[["type"]] == "datetime") {
+                try(data[[i]] <- as.POSIXct(data[[i]]))
+            } else if (fields_this_col[["type"]] == "boolean") {
+                try(data[[i]] <- as.logical(data[[i]]))
+            } else if (fields_this_col[["type"]] == "number") {
+                try(data[[i]] <- as.numeric(data[[i]]))
+            }
+        }
+        ## 'format' (just added as an attribute for now)
+        if ("format" %in% names(fields_this_col)) {
+            attr(data[[i]], "format") <- fields_this_col[["format"]]
+        }
+        ## add 'levels' (if not added above during factor coercion)
+        if ("levels" %in% names(fields_this_col) && (!"levels" %in% attributes(data[[i]]))) {
+            attr(data[[i]], "levels") <- fields_this_col[["levels"]]
+        }
+        ## add 'labels' (not in schema but useful)
+        if ("labels" %in% names(fields_this_col) && (!"labels" %in% attributes(data[[i]]))) {
+            attr(data[[i]], "labels") <- fields_this_col[["labels"]]
+        }
+        rm(fields_this_col)
+    }
+    
+    return(data)
 }

@@ -4,21 +4,26 @@
 \alias{write_csvy}
 \title{Export CSVY data}
 \usage{
-write_csvy(x, file = "", sep = ",", sep2 = ".", comment_header = TRUE,
-  ...)
+write_csvy(x, file, metadata = NULL, sep = ",", sep2 = ".",
+  comment_header = if (is.null(metadata)) TRUE else FALSE,
+  name = as.character(substitute(x)), ...)
 }
 \arguments{
 \item{x}{A data.frame.}
 
 \item{file}{A character string or R connection specifying a file.}
 
-\item{sep}{A character string specifying a between-field separator. Passed to \code{\link[utils]{write.table}}.}
+\item{metadata}{Optionally, a character string specifying a YAML (\dQuote{.yaml}) or JSON (\dQuote{.json}) file to write the metadata (in lieu of including it in the header of the file).}
 
-\item{sep2}{A character string specifying a within-field separator. Passed to \code{\link[utils]{write.table}}.}
+\item{sep}{A character string specifying a between-field separator. Passed to \code{\link[data.table]{fwrite}}.}
+
+\item{sep2}{A character string specifying a within-field separator. Passed to \code{\link[data.table]{fwrite}}.}
 
 \item{comment_header}{A logical indicating whether to comment the lines containing the YAML front matter. Default is \code{TRUE}.}
 
-\item{\dots}{Additional arguments passed to \code{\link[utils]{write.table}}.}
+\item{name}{A character string specifying a name for the dataset.}
+
+\item{\dots}{Additional arguments passed to \code{\link[data.table]{fwrite}}.}
 }
 \description{
 Export data.frame to CSVY
@@ -34,4 +39,3 @@ write_csvy(head(iris), comment_header = FALSE)
 \seealso{
 \code{\link{write_csvy}}
 }
-

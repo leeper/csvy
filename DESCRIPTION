@@ -1,23 +1,23 @@
 Package: csvy
 Type: Package
 Title: Import and Export CSV Data with a YAML Metadata Header
-Version: 0.1.3
-Date: 2016-07-28
+Version: 0.2.0
+Date: 2018-03-04
 Authors@R: c(person("Thomas J.", "Leeper",
                     role = c("aut", "cre"), 
                     email = "thosjleeper@gmail.com",
                     comment = c(ORCID = "0000-0003-4097-6326"))
              )
-Description: Support for import from and export to the CSVY file format. CSVY is a file format that combines the simplicity of CSV (comma-separated values) with the metadata of other plain text and binary formats (JSON, XML, Stata, etc.) by placing a YAML header on top of a regular CSV. 
+Description: Support for import from and export to the CSVY file format. CSVY is a file format that combines the simplicity of CSV (comma-separated values) with the metadata of other plain text and binary formats (JSON, XML, Stata, etc.) by placing a YAML header on top of a regular CSV.
 URL: https://github.com/leeper/csvy
 BugReports: https://github.com/leeper/csvy/issues
 Imports:
-    utils,
+    tools,
+    data.table,
+    jsonlite,
     yaml
 Suggests:
-    data.table,
-    readr,
     testthat,
     datasets
 License: GPL-2
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
