@@ -1,3 +1,7 @@
+# CHANGES TO v0.2.1
+
+ * Expanded test suite and fixed some small bugs in the process.
+
 # CHANGES TO v0.2.0
 
  * Removed support for `utils::read.csv()` and `readr::read_csv()` for simplicity.

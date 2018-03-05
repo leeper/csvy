@@ -20,23 +20,23 @@ function(
     stringsAsFactors = FALSE,
     ...
 ) {
+    
+    # setup factor coercion conditional on presence of 'levels' metadata field
+    if (isTRUE(stringsAsFactors)) {
+        try_to_factorize <- "always"
+    } else if (stringsAsFactors == "conditional") {
+        stringsAsFactors <- FALSE
+        try_to_factorize <- "conditional"
+    } else {
+        try_to_factorize <- "never"
+    }
+        
     if (is.null(metadata)) {
         # read in whole file
         f <- readLines(file)
         if (!length(f)) {
             stop("File does not exist or is empty")
         }
-        
-        # setup factor coercion conditional on presence of 'levels' metadata field
-        if (isTRUE(stringsAsFactors)) {
-            try_to_factorize <- "always"
-        } else if (stringsAsFactors == "conditional") {
-            stringsAsFactors <- FALSE
-            try_to_factorize <- "conditional"
-        } else {
-            try_to_factorize <- "never"
-        }
-        
         
         # identify yaml delimiters
         g <- grep("^#?---", f)
@@ -104,11 +104,14 @@ function(
                                  stringsAsFactors = stringsAsFactors, data.table = FALSE, ...)
     } else {
         # if metadata is separate file, load whole file
-        out <- data.table::fread(input = file, sep = sep, header = header, 
+        out <- data.table::fread(input = file, sep = "auto", header = header, 
                                  stringsAsFactors = stringsAsFactors, data.table = FALSE, ...)
     }
     
-    # add metadata to data
+    # add data frame-level metadata to data
+    out <- add_dataset_metadata(data_frame = out, metadata_list = metadata_list)
+    
+    # add variable-level metadata to data
     out <- add_variable_metadata(data = out, fields = fields, try_to_factorize = try_to_factorize)
     
     return(out)
@@ -220,4 +223,14 @@ add_variable_metadata <- function(data, fields, try_to_factorize = "never") {
     }
     
     return(data)
+}
+
+add_dataset_metadata <- function(data_frame, metadata_list) {
+    if ("profile" %in% names(metadata_list)) {
+        attr(data_frame, "profile") <- metadata_list[["profile"]]
+    }
+    if ("name" %in% names(metadata_list)) {
+        attr(data_frame, "name") <- metadata_list[["name"]]
+    }
+    return(data_frame)
 }

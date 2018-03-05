@@ -2,6 +2,7 @@
 .gitignore
 .Rbuildignore
 .travis.yml
+.github/
 appveyor.yml
 README.Rmd
 ^revdep$

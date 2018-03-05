@@ -98,9 +98,9 @@ function(
         ext <- tools::file_ext(metadata)
         
         # write metadata to separate metadata file
-        if (ext == "yaml") {
-            cat(y, file = metadata)
-        } else if (ext == "json") {
+        if (tolower(ext) %in% c("yml", "yaml")) {
+            cat(yaml::as.yaml(metadata_list), file = metadata)
+        } else if (tolower(ext) == "json") {
             jsonlite::write_json(metadata_list, path = metadata)
         } else {
             warning("'metadata' should be either a .json or .yaml file.")
@@ -109,7 +109,7 @@ function(
         data.table::fwrite(x = x, file = file, sep = sep, dec = sep2, ...)
     } else {
         # write metadata to file
-        y <- paste0("---\n", as.yaml(metadata_list), "---\n")
+        y <- paste0("---\n", yaml::as.yaml(metadata_list), "---\n")
         if (isTRUE(comment_header)){
           m <- readLines(textConnection(y))
           y <- paste0("#", m[-length(m)],collapse = "\n")

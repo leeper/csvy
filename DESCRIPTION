@@ -1,7 +1,7 @@
 Package: csvy
 Type: Package
 Title: Import and Export CSV Data with a YAML Metadata Header
-Version: 0.2.0
+Version: 0.2.1
 Date: 2018-03-04
 Authors@R: c(person("Thomas J.", "Leeper",
                     role = c("aut", "cre"), 
