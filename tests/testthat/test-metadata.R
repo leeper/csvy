@@ -4,10 +4,10 @@ require("datasets")
 test_that("Metadata supported by read_csvy() and write_csvy()", {
     # setup metadata
     iris2 <- iris
-    attr(iris2$Sepal.Length, "label") <- "Sepal Length"
-    attr(iris2$Sepal.Width, "label") <- "Sepal Length"
-    attr(iris2$Petal.Length, "label") <- "Sepal Length"
-    attr(iris2$Petal.Width, "label") <- "Sepal Length"
+    attr(iris2$Sepal.Length, "labels") <- "Sepal Length"
+    attr(iris2$Sepal.Width, "labels") <- "Sepal Length"
+    attr(iris2$Petal.Length, "labels") <- "Sepal Length"
+    attr(iris2$Petal.Width, "labels") <- "Sepal Length"
     
     # export
     tmp <- tempfile()
