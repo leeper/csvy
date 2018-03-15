@@ -1,6 +1,7 @@
 # CHANGES TO v0.2.1
 
  * Expanded test suite and fixed some small bugs in the process.
+ * Parse YAML header file first, then pass column classes to `data.table::fread` to improve performance (#9, Alexey Shiklomanov)
 
 # CHANGES TO v0.2.0
 
