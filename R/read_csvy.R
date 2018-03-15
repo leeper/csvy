@@ -32,35 +32,19 @@ function(
     }
         
     if (is.null(metadata)) {
-        # read in whole file
-        f <- readLines(file)
-        if (!length(f)) {
-            stop("File does not exist or is empty")
-        }
-        
-        # identify yaml delimiters
-        g <- grep("^#?---", f)
-        if (length(g) > 2) {
-            stop("More than 2 yaml delimiters found in file")
-        } else if (length(g) == 1) {
-            stop("Only one yaml delimiter found")
-        } else if (length(g) == 0) {
-            ## no yaml header; just read file
+        metadata_raw <- get_yaml_header(file, verbose = FALSE)
+        if (is.null(metadata_raw)) {
             message("No yaml delimiters found. Reading file as CSV.")
-            out <- data.table::fread(input = file, sep = "auto", header = "auto", 
+            out <- data.table::fread(input = file, sep = "auto", header = "auto",
                                      stringsAsFactors = stringsAsFactors,
                                      data.table = FALSE, ...)
             return(out)
         }
-        
-        # extract yaml front matter and convert to R list
-        metadata_list <- f[(g[1]+1):(g[2]-1)]
-        if (all(grepl("^#", metadata_list))) {
-            metadata_list <- gsub("^#", "", metadata_list)
-        }
-        metadata_list <- yaml::yaml.load(paste(metadata_list, collapse = "\n"))
+        skip_lines <- length(metadata_raw) + 1L     # Including opening and closing "---"
+        metadata_list <- yaml::yaml.load(paste(metadata_raw, collapse = "\n"))
     } else {
         ext <- tools::file_ext(metadata)
+        skip_lines <- 0L
         if (ext == "yaml") {
             metadata_list <- yaml::yaml.load(paste(readLines(metadata), collapse = "\n"))
         } else if (ext == "json") {
@@ -78,8 +62,12 @@ function(
         # this is the current standard
         # get first resource field (currently we don't support multiple resources)
         fields <- metadata_list$resources[[1L]]$schema$fields
+        field_types <- vapply(fields, "[[", character(1), "type")
+        col_classes <- colclass_dict[field_types]
+        names(col_classes) <- vapply(fields, "[[", character(1), "name")
     } else {
         fields <- NULL
+        col_classes <- NULL
     }
     
     # find 'dialect' to use for importing, if available
@@ -87,26 +75,28 @@ function(
         dialect <- metadata_list$resources[[1L]]$dialect
         ## delimiter
         sep <- dialect$delimeter
+        if (is.null(sep)) sep <- "auto"
         ## header
         header <- as.logical(dialect$header)
+        if (is.null(header)) header <- "auto"
         ## there are other args here but we really don't need them
         ## need to decide how to use them
     } else {
         sep <- "auto"
         header <- "auto"
     }
-    
+
     # load the data
-    if (is.null(metadata)) {
-        # if metadata in header, load only relevant lines of file
-        dat <- paste0(f[(g[2]+1):length(f)], collapse = "\n")
-        out <- data.table::fread(input = dat, sep = "auto", header = header, 
-                                 stringsAsFactors = stringsAsFactors, data.table = FALSE, ...)
-    } else {
-        # if metadata is separate file, load whole file
-        out <- data.table::fread(input = file, sep = "auto", header = header, 
-                                 stringsAsFactors = stringsAsFactors, data.table = FALSE, ...)
-    }
+    out <- data.table::fread(
+        file = file,
+        sep = sep,
+        header = header,
+        stringsAsFactors = stringsAsFactors,
+        data.table = FALSE,
+        colClasses = col_classes,
+        skip = skip_lines,
+        ...
+    )
     
     # add data frame-level metadata to data
     out <- add_dataset_metadata(data_frame = out, metadata_list = metadata_list)
