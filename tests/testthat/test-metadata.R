@@ -17,7 +17,7 @@ test_that("Metadata supported by read_csvy() and write_csvy()", {
     # import
     iris3 <- read_csvy(tmp)
     expect_true(attr(iris3, "name") == "Edgar Anderson's Iris Data")
-    expect_true(attr(iris3$Sepal.Length, "label") == "Sepal Length")
+    expect_true(attr(iris3$Sepal.Length, "labels") == "Sepal Length")
     
     # cleanup
     unlink(tmp)
