@@ -100,10 +100,10 @@ install.packages("csvy")
 The latest development version on GitHub can be installed using **devtools**:
 
 ``` r
-if(!require("ghit")){
-    install.packages("ghit")
+if(!require("remotes")){
+    install.packages("remotes")
 }
-ghit::install_github("leeper/csvy")
+remotes::install_github("leeper/csvy")
 ```
 
 [![CRAN Version](http://www.r-pkg.org/badges/version/csvy)](https://cran.r-project.org/package=csvy) ![Downloads](http://cranlogs.r-pkg.org/badges/csvy) [![Travis-CI Build Status](https://travis-ci.org/leeper/csvy.png?branch=master)](https://travis-ci.org/leeper/csvy) [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/sgttgdfcql63578u?svg=true)](https://ci.appveyor.com/project/leeper/csvy) [![codecov.io](http://codecov.io/github/leeper/csvy/coverage.svg?branch=master)](http://codecov.io/github/leeper/csvy?branch=master)

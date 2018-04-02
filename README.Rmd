@@ -84,10 +84,10 @@ install.packages("csvy")
 The latest development version on GitHub can be installed using **devtools**:
 
 ```R
-if(!require("ghit")){
-    install.packages("ghit")
+if(!require("remotes")){
+    install.packages("remotes")
 }
-ghit::install_github("leeper/csvy")
+remotes::install_github("leeper/csvy")
 ```
 
 [![CRAN Version](http://www.r-pkg.org/badges/version/csvy)](https://cran.r-project.org/package=csvy)
