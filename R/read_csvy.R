@@ -45,29 +45,32 @@ function(
         } else if (length(g) == 1) {
             stop("Only one yaml delimiter found")
         } else if (length(g) == 0) {
-            ## no yaml header; just read file
-            message("No yaml delimiters found. Reading file as CSV.")
-            out <- data.table::fread(input = file, sep = "auto", header = "auto", 
-                                     stringsAsFactors = stringsAsFactors,
-                                     data.table = FALSE, ...)
-            return(out)
+            message("No yaml/yml/json header in file, attempting to auto-detect")
+            ## no yaml header; look for file.yaml or file.json
+            filedir <- dirname(file)
+            possible_metadata <- dir(filedir, pattern = "\\.json$|\\.yaml|\\.yml")
+            if (length(possible_metadata) > 1) {
+                stop("More than 1 yaml/yml/json files detected in same directory as data")
+            } else if (length(possible_metadata) == 0) {
+                ## no metadata file found, just read file
+                message("No yaml/yml/json files detected in same directory as data. Reading file as CSV")
+                out <- data.table::fread(input = file, sep = "auto", header = "auto", 
+                                         stringsAsFactors = stringsAsFactors,
+                                         data.table = FALSE, ...)
+                return(out)
+            } else if (length(possible_metadata) == 1) {
+                metadata_list <- read_metadata(possible_metadata)
+            }
+        } else if (length(g) == 2) {
+            # extract yaml front matter and convert to R list
+            metadata_list <- f[(g[1]+1):(g[2]-1)]
+            if (all(grepl("^#", metadata_list))) {
+                metadata_list <- gsub("^#", "", metadata_list)
+            }
+            metadata_list <- yaml::yaml.load(paste(metadata_list, collapse = "\n"))
         }
-        
-        # extract yaml front matter and convert to R list
-        metadata_list <- f[(g[1]+1):(g[2]-1)]
-        if (all(grepl("^#", metadata_list))) {
-            metadata_list <- gsub("^#", "", metadata_list)
-        }
-        metadata_list <- yaml::yaml.load(paste(metadata_list, collapse = "\n"))
     } else {
-        ext <- tools::file_ext(metadata)
-        if (ext == "yaml") {
-            metadata_list <- yaml::yaml.load(paste(readLines(metadata), collapse = "\n"))
-        } else if (ext == "json") {
-            metadata_list <- jsonlite::fromJSON(metadata, simplifyDataFrame = FALSE)
-        } else {
-            warning("'metadata' should be either a .json or .yaml file.")
-        }
+        metadata_list <- read_metadata(metadata)
     }
     
     # find variable-level metadata 'fields'
@@ -233,4 +236,29 @@ add_dataset_metadata <- function(data_frame, metadata_list) {
         attr(data_frame, "name") <- metadata_list[["name"]]
     }
     return(data_frame)
+}
+
+
+#' @title Read metadata
+#' @md
+#' @description Read csvy metadata from an external `.yml/.yaml` or `.json` file
+#' 
+#' @param file full path of file from which to read the metadata.
+#'
+#' @return the metadata as a list
+#' 
+#' @importFrom yaml yaml.load
+#' @importFrom jsonlite fromJSON
+#' @importFrom tools file_ext
+#'  
+#' @export
+read_metadata <- function(file) {
+    ext <- tools::file_ext(file)
+    if (ext %in% c("yaml", "yml")) {
+        metadata_list <- yaml::yaml.load(paste(readLines(file), collapse = "\n"))
+    } else if (ext == "json") {
+        metadata_list <- jsonlite::fromJSON(file, simplifyDataFrame = FALSE)
+    } else {
+        stop("'metadata' should be either a .json or .yaml file.") ## should fail
+    }
 }
