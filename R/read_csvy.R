@@ -168,12 +168,15 @@ add_variable_metadata <- function(data, fields, try_to_factorize = "never") {
         
         # add 'title' field
         if ("title" %in% names(fields_this_col)) {
-            attr(data[[i]], "label") <- fields_this_col[["label"]]
+            attr(data[[i]], "label") <- fields_this_col[["title"]]
         }
         # add 'description' field
         if ("description" %in% names(fields_this_col)) {
             attr(data[[i]], "description") <- fields_this_col[["description"]]
         }
+        ## store attributes already calculated
+        dat_attributes <- attributes(data[[i]])
+        
         # handle 'type' and 'format' fields
         ## 'type'
         if ("type" %in% names(fields_this_col)) {
@@ -206,6 +209,8 @@ add_variable_metadata <- function(data, fields, try_to_factorize = "never") {
             } else if (fields_this_col[["type"]] == "number") {
                 try(data[[i]] <- as.numeric(data[[i]]))
             }
+            ## replace attributes
+            attributes(data[[i]]) <- dat_attributes
         }
         ## 'format' (just added as an attribute for now)
         if ("format" %in% names(fields_this_col)) {
