@@ -1,6 +1,8 @@
 # csvy v0.2.1
 
  * Expanded test suite and fixed some small bugs in the process.
+ * If reading a file `data.csvy` without a metadata header, and a `data.[yaml|yml|json]` file
+   is present, that will be automatically read-in as the metadata (resolves #10, h/t @jonocarroll)
 
 # csvy v0.2.0
 
