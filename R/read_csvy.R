@@ -48,7 +48,7 @@ function(
             message("No yaml/yml/json header in file, attempting to auto-detect")
             ## no yaml header; look for file.yaml or file.json
             filedir <- dirname(file)
-            possible_metadata <- dir(filedir, pattern = "\\.json$|\\.yaml|\\.yml")
+            possible_metadata <- dir(filedir, pattern = "\\.json$|\\.yaml|\\.yml", full.names = TRUE)
             if (length(possible_metadata) > 1) {
                 stop("More than 1 yaml/yml/json files detected in same directory as data")
             } else if (length(possible_metadata) == 0) {
@@ -59,6 +59,7 @@ function(
                                          data.table = FALSE, ...)
                 return(out)
             } else if (length(possible_metadata) == 1) {
+                message(paste0("Detected ", basename(possible_metadata), ", attempting to use that"))
                 metadata_list <- read_metadata(possible_metadata)
             }
         } else if (length(g) == 2) {
@@ -102,7 +103,11 @@ function(
     # load the data
     if (is.null(metadata)) {
         # if metadata in header, load only relevant lines of file
-        dat <- paste0(f[(g[2]+1):length(f)], collapse = "\n")
+        if (length(g) == 2) {
+            dat <- paste0(f[(g[2]+1):length(f)], collapse = "\n")
+        } else {
+            dat <- paste0(f, collapse = "\n")
+        }
         out <- data.table::fread(input = dat, sep = "auto", header = header, 
                                  stringsAsFactors = stringsAsFactors, data.table = FALSE, ...)
     } else {
