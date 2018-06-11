@@ -6,7 +6,7 @@
 \usage{
 write_csvy(x, file, metadata = NULL, sep = ",", sep2 = ".",
   comment_header = if (is.null(metadata)) TRUE else FALSE,
-  name = as.character(substitute(x)), ...)
+  name = as.character(substitute(x)), metadata_only = FALSE, ...)
 }
 \arguments{
 \item{x}{A data.frame.}
@@ -22,6 +22,8 @@ write_csvy(x, file, metadata = NULL, sep = ",", sep2 = ".",
 \item{comment_header}{A logical indicating whether to comment the lines containing the YAML front matter. Default is \code{TRUE}.}
 
 \item{name}{A character string specifying a name for the dataset.}
+
+\item{metadata_only}{A logical indicating whether only the metadata should be produced (no CSV component).}
 
 \item{\dots}{Additional arguments passed to \code{\link[data.table]{fwrite}}.}
 }
