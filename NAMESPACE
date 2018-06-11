@@ -2,6 +2,7 @@
 
 export(get_yaml_header)
 export(read_csvy)
+export(read_metadata)
 export(write_csvy)
 importFrom(data.table,fread)
 importFrom(data.table,fwrite)
