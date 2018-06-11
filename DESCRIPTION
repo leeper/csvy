@@ -6,7 +6,11 @@ Date: 2018-03-04
 Authors@R: c(person("Thomas J.", "Leeper",
                     role = c("aut", "cre"), 
                     email = "thosjleeper@gmail.com",
-                    comment = c(ORCID = "0000-0003-4097-6326"))
+                    comment = c(ORCID = "0000-0003-4097-6326")),
+             person("Alexey N.", "Shiklomanov",
+                    role = "aut",
+                    email = "alexey.shiklomanov@gmail.com",
+                    comment = c(ORCID = "0000-0003-4022-5979"))
              )
 Description: Support for import from and export to the CSVY file format. CSVY is a file format that combines the simplicity of CSV (comma-separated values) with the metadata of other plain text and binary formats (JSON, XML, Stata, etc.) by placing a YAML header on top of a regular CSV.
 URL: https://github.com/leeper/csvy
