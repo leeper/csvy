@@ -4,7 +4,8 @@
 \alias{read_csvy}
 \title{Import CSVY data}
 \usage{
-read_csvy(file, metadata = NULL, stringsAsFactors = FALSE, ...)
+read_csvy(file, metadata = NULL, stringsAsFactors = FALSE,
+  detect_metadata = TRUE, ...)
 }
 \arguments{
 \item{file}{A character string or R connection specifying a file.}
@@ -12,6 +13,8 @@ read_csvy(file, metadata = NULL, stringsAsFactors = FALSE, ...)
 \item{metadata}{Optionally, a character string specifying a YAML (\dQuote{.yaml}) or JSON (\dQuote{.json}) file containing metadata (in lieu of including it in the header of the file).}
 
 \item{stringsAsFactors}{A logical specifying whether to treat character columns as factors. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'} which never returns factors.}
+
+\item{detect_metadata}{A logical specifying whether to auto-detect a metadata file if none is specified (and if no header is found).}
 
 \item{\dots}{Additional arguments passed to \code{\link[data.table]{fread}}.}
 }

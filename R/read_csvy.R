@@ -2,8 +2,8 @@
 #' @description Import CSVY data as a data.frame
 #' @param file A character string or R connection specifying a file.
 #' @param metadata Optionally, a character string specifying a YAML (\dQuote{.yaml}) or JSON (\dQuote{.json}) file containing metadata (in lieu of including it in the header of the file).
-#' @param detect_metadata A logical specifying whether to auto-detect a metadata file if none is specified (and if no header is found).
 #' @param stringsAsFactors A logical specifying whether to treat character columns as factors. Passed to \code{\link[utils]{read.csv}} or \code{\link[data.table]{fread}} depending on the value of \code{method}. Ignored for \code{method = 'readr'} which never returns factors.
+#' @param detect_metadata A logical specifying whether to auto-detect a metadata file if none is specified (and if no header is found).
 #' @param \dots Additional arguments passed to \code{\link[data.table]{fread}}.
 #' @examples
 #' read_csvy(system.file("examples", "example3.csvy", package = "csvy"))
@@ -18,8 +18,8 @@ read_csvy <-
 function(
     file,
     metadata = NULL,
-    detect_metadata = FALSE,
     stringsAsFactors = FALSE,
+    detect_metadata = TRUE,
     ...
 ) {
     
@@ -60,6 +60,7 @@ function(
             metadata_list <- yaml::yaml.load(paste(metadata_raw, collapse = "\n"))
         }
     } else {
+        skip_lines <- 0L
         metadata_list <- read_metadata(metadata)
     }
     

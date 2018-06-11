@@ -14,10 +14,8 @@ get_yaml_header(file, yaml_rxp = "^#*---[[:space:]]*$", verbose = TRUE)
 \item{verbose}{Logical. If \code{TRUE}, print warning if no header found.}
 }
 \value{
-Character vector of lines containing YAML header, or `NULL` if no 
-YAML header found.
+Character vector of lines containing YAML header, or `NULL` if no YAML header found.
 }
 \description{
-Note that this assumes only one Yaml header, starting on the first line of 
-the file.
+Note that this assumes only one Yaml header, starting on the first line of the file.
 }
