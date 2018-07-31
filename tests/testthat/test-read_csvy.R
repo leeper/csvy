@@ -4,12 +4,11 @@ library("datasets")
 test_that("Basic import from CSVY", {
     d1 <- read_csvy(system.file("examples", "example1.csvy", package = "csvy"))
     expect_true(inherits(d1, "data.frame"))
+    expect_true(identical(dim(d1), c(2L, 3L)))
     
-    d3 <- read_csvy(system.file("examples", "example3.csvy", package = "csvy"))
-    expect_true(identical(dim(d3), c(2L, 3L)))
-    
-    d4 <- read.csv(system.file("examples", "example3.csvy", package = "csvy"), comment.char = "#")
-    expect_true(identical(dim(d4), c(2L, 3L)))
+    d2 <- read_csvy(system.file("examples", "example2.csvy", package = "csvy"))
+    expect_true(inherits(d2, "data.frame"))
+    expect_true(identical(dim(d2), c(2L, 3L)))
 })
 
 test_that("Import from CSVY with separate yaml header", {

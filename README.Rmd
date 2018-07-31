@@ -6,26 +6,39 @@ A CSVY file looks like this:
 
 ```
 #---
+#profile: tabular-data-resource
 #name: my-dataset
-#resources:
-#- order: 1
-#  schema:
-#    fields:
-#    - name: var1
-#      type: string
-#    - name: var2
-#      type: integer
-#    - name: var3
-#      type: number
-#  dialect:
-#    csvddfVersion: 1.0
-#    delimiter: ","
-#    doubleQuote: false
-#    lineTerminator: "\r\n"
-#    quoteChar: "\""
-#    skipInitialSpace: true
-#    header: true
----
+#path: https://raw.githubusercontent.com/csvy/csvy.github.io/master/examples/example.csvy
+#title: Example file of csvy 
+#description: Show a csvy sample file.
+#format: csvy
+#mediatype: text/vnd.yaml
+#encoding: utf-8
+#schema:
+#  fields:
+#  - name: var1
+#    type: string
+#  - name: var2
+#    type: integer
+#  - name: var3
+#    type: number
+#dialect:
+#  csvddfVersion: 1.0
+#  delimiter: ","
+#  doubleQuote: false
+#  lineTerminator: "\r\n"
+#  quoteChar: "\""
+#  skipInitialSpace: true
+#  header: true
+#sources:
+#- title: The csvy specifications
+#  path: http://csvy.org/
+#  email: ''
+#licenses:
+#- name: CC-BY-4.0
+#  title: Creative Commons Attribution 4.0
+#  path: https://creativecommons.org/licenses/by/4.0/
+#---
 var1,var2,var3
 A,1,2.0
 B,3,4.3
@@ -36,7 +49,7 @@ Which we can read into R like this:
 
 ```{r}
 library("csvy")
-str(read_csvy(system.file("examples", "example3.csvy", package = "csvy")))
+str(read_csvy(system.file("examples", "example1.csvy", package = "csvy")))
 ```
 
 Optional comment characters on the YAML lines make the data readable with any standard CSV parser while retaining the ability to import and export variable- and file-level metadata. The CSVY specification does not use these, but the csvy package for R does so that you (and other users) can continue to rely on `utils::read.csv()` or `readr::read_csv()` as usual. The `import()` function in [rio](https://cran.r-project.org/package=rio) supports CSVY natively.

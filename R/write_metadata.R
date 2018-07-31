@@ -1,4 +1,3 @@
-
 #' @title Write csvy metadata
 #' @md
 #' @description Write csvy metadata to an external `.yml/.yaml` or `.json` file

@@ -6,7 +6,7 @@
 #' @param detect_metadata A logical specifying whether to auto-detect a metadata file if none is specified (and if no header is found).
 #' @param \dots Additional arguments passed to \code{\link[data.table]{fread}}.
 #' @examples
-#' read_csvy(system.file("examples", "example3.csvy", package = "csvy"))
+#' read_csvy(system.file("examples", "example1.csvy", package = "csvy"))
 #' 
 #' @importFrom tools file_ext
 #' @importFrom jsonlite fromJSON
@@ -66,12 +66,10 @@ function(
     
     # find variable-level metadata 'fields'
     if ("fields" %in% names(metadata_list)) {
-        # this is a legacy
         fields <- metadata_list$fields
-    } else if ("resources" %in% names(metadata_list)) {
-        # this is the current standard
-        # get first resource field (currently we don't support multiple resources)
-        fields <- metadata_list$resources[[1L]]$schema$fields
+        col_classes <- NULL
+    } else if ("schema" %in% names(metadata_list)) {
+        fields <- metadata_list$schema$fields
         field_types <- vapply(fields, "[[", character(1), "type")
         col_classes <- colclass_dict[field_types]
         names(col_classes) <- vapply(fields, "[[", character(1), "name")
@@ -81,14 +79,15 @@ function(
     }
     
     # find 'dialect' to use for importing, if available
-    if ("resources" %in% names(metadata_list)) {
-        dialect <- metadata_list$resources[[1L]]$dialect
+    if ("dialect" %in% names(metadata_list)) {
         ## delimiter
-        sep <- dialect$delimeter
+        sep <- metadata_list$dialect$delimeter
         if (is.null(sep)) sep <- "auto"
         ## header
-        header <- as.logical(dialect$header)
-        if (is.null(header)) header <- "auto"
+        header <- as.logical(metadata_list$dialect$header)
+        if (is.null(header)) {
+            header <- "auto"
+        }
         ## there are other args here but we really don't need them
         ## need to decide how to use them
     } else {
@@ -234,8 +233,23 @@ add_dataset_metadata <- function(data_frame, metadata_list) {
     if ("profile" %in% names(metadata_list)) {
         attr(data_frame, "profile") <- metadata_list[["profile"]]
     }
+    if ("title" %in% names(metadata_list)) {
+        attr(data_frame, "title") <- metadata_list[["title"]]
+    }
+    if ("description" %in% names(metadata_list)) {
+        attr(data_frame, "description") <- metadata_list[["description"]]
+    }
     if ("name" %in% names(metadata_list)) {
         attr(data_frame, "name") <- metadata_list[["name"]]
+    }
+    if ("format" %in% names(metadata_list)) {
+        attr(data_frame, "format") <- metadata_list[["format"]]
+    }
+    if ("sources" %in% names(metadata_list)) {
+        attr(data_frame, "sources") <- metadata_list[["sources"]]
+    }
+    if ("licenses" %in% names(metadata_list)) {
+        attr(data_frame, "sources") <- metadata_list[["licenses"]]
     }
     return(data_frame)
 }

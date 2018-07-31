@@ -1,13 +1,19 @@
 context("CSVY import/export with additional metadata")
 require("datasets")
 
+test_that("Metadata read regardless of comment character in header", {
+    e1 <- system.file("examples", "example1.csvy", package = "csvy")
+    e2 <- system.file("examples", "example2.csvy", package = "csvy")
+    expect_true(identical(get_yaml_header(e1), get_yaml_header(e2)))
+})
+
 test_that("Metadata supported by read_csvy() and write_csvy()", {
     # setup metadata
     iris2 <- iris
     attr(iris2$Sepal.Length, "label") <- "Sepal Length"
-    attr(iris2$Sepal.Width, "label") <- "Sepal Length"
-    attr(iris2$Petal.Length, "label") <- "Sepal Length"
-    attr(iris2$Petal.Width, "label") <- "Sepal Length"
+    attr(iris2$Sepal.Width, "label") <- "Sepal Width"
+    attr(iris2$Petal.Length, "label") <- "Petal Length"
+    attr(iris2$Petal.Width, "label") <- "Petal Width"
 
     # export
     tmp <- tempfile()
@@ -26,10 +32,10 @@ context("External metadata can be found and loaded")
 
 test_that("External metadata loads automatically", {
     iris2 <- iris
-    # attr(iris2$Sepal.Length, "label") <- "Sepal Length"  # to be fixed in PR#21
-    # attr(iris2$Sepal.Width, "label") <- "Sepal Length"   # to be fixed in PR#21
-    # attr(iris2$Petal.Length, "label") <- "Sepal Length"  # to be fixed in PR#21
-    # attr(iris2$Petal.Width, "label") <- "Sepal Length"   # to be fixed in PR#21
+    attr(iris2$Sepal.Length, "label") <- "Sepal Length"  # to be fixed in PR#21
+    attr(iris2$Sepal.Width, "label") <- "Sepal Width"   # to be fixed in PR#21
+    attr(iris2$Petal.Length, "label") <- "Petal Length"  # to be fixed in PR#21
+    attr(iris2$Petal.Width, "label") <- "Petal Width"   # to be fixed in PR#21
 
     # export
     tmp <- tempfile("iris", fileext = ".csvy")

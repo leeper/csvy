@@ -20,6 +20,9 @@ check: ../$(pkg)*.tar.gz
 	cd ../ && R CMD check $(pkg)*.tar.gz
 	rm ../$(pkg)*.tar.gz
 
+revdep: ../$(pkg)*.tar.gz
+	Rscript -e "devtools::revdep_check()"
+
 install: ../$(pkg)*.tar.gz
 	cd ../ && R CMD INSTALL $(pkg)*.tar.gz
 	rm ../$(pkg)*.tar.gz

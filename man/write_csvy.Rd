@@ -4,9 +4,9 @@
 \alias{write_csvy}
 \title{Export CSVY data}
 \usage{
-write_csvy(x, file, metadata = NULL, sep = ",", sep2 = ".",
+write_csvy(x, file, metadata = NULL, sep = ",", dec = ".",
   comment_header = if (is.null(metadata)) TRUE else FALSE,
-  name = as.character(substitute(x)), metadata_only = FALSE, ...)
+  name = deparse(substitute(x)), metadata_only = FALSE, ...)
 }
 \arguments{
 \item{x}{A data.frame.}
@@ -17,7 +17,7 @@ write_csvy(x, file, metadata = NULL, sep = ",", sep2 = ".",
 
 \item{sep}{A character string specifying a between-field separator. Passed to \code{\link[data.table]{fwrite}}.}
 
-\item{sep2}{A character string specifying a within-field separator. Passed to \code{\link[data.table]{fwrite}}.}
+\item{dec}{A character string specifying a within-field separator. Passed to \code{\link[data.table]{fwrite}}.}
 
 \item{comment_header}{A logical indicating whether to comment the lines containing the YAML front matter. Default is \code{TRUE}.}
 

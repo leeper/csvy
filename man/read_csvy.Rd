@@ -22,7 +22,7 @@ read_csvy(file, metadata = NULL, stringsAsFactors = FALSE,
 Import CSVY data as a data.frame
 }
 \examples{
-read_csvy(system.file("examples", "example3.csvy", package = "csvy"))
+read_csvy(system.file("examples", "example1.csvy", package = "csvy"))
 
 }
 \seealso{

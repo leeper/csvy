@@ -38,6 +38,8 @@ function(
     ## data-level metadata
     metadata_list <- list(profile = "tabular-data-package",
                           name = name)
+    att <- attributes(x)
+    metadata_list <- c(metadata_list, att[!names(att) %in% c("names", "class", "row.names")])
     
     ## build variable-specific metadata list
     fields <- list()
@@ -78,6 +80,7 @@ function(
         }
         rm(fields_this_col)
     }
+    metadata_list[["fields"]] <- fields
     
     if (!is.null(metadata)) {
         ## write metadata to separate file
@@ -97,6 +100,7 @@ function(
             y <- paste0("#", m[-length(m)],collapse = "\n")
             y <- c(y, "\n")
         }
+        # write data to file
         if (missing(file)) {
             cat(y)
             data.table::fwrite(x = x, file = "", sep = sep, dec = dec, append = TRUE, col.names = TRUE, ...)

@@ -4,7 +4,7 @@
 \alias{get_yaml_header}
 \title{Retrieve YAML header from file}
 \usage{
-get_yaml_header(file, yaml_rxp = "^#*---[[:space:]]*$", verbose = TRUE)
+get_yaml_header(file, yaml_rxp = "^\\\\#*---[[:space:]]*$", verbose = TRUE)
 }
 \arguments{
 \item{file}{A character string or R connection specifying a file.}
