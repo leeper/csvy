@@ -4,7 +4,7 @@
 #' @param file A character string or R connection specifying a file.
 #' @param metadata Optionally, a character string specifying a YAML (\dQuote{.yaml}) or JSON (\dQuote{.json}) file to write the metadata (in lieu of including it in the header of the file).
 #' @param sep A character string specifying a between-field separator. Passed to \code{\link[data.table]{fwrite}}.
-#' @param sep2 A character string specifying a within-field separator. Passed to \code{\link[data.table]{fwrite}}.
+#' @param dec A character string specifying a within-field separator. Passed to \code{\link[data.table]{fwrite}}.
 #' @param comment_header A logical indicating whether to comment the lines containing the YAML front matter. Default is \code{TRUE}.
 #' @param metadata_only A logical indicating whether only the metadata should be produced (no CSV component).
 #' @param name A character string specifying a name for the dataset.
@@ -28,9 +28,9 @@ function(
   file,
   metadata = NULL,
   sep = ",",
-  sep2 = ".",
+  dec = ".",
   comment_header = if (is.null(metadata)) TRUE else FALSE,
-  name = as.character(substitute(x)),
+  name = deparse(substitute(x)),
   metadata_only = FALSE,
   ...
 ) {
@@ -79,47 +79,31 @@ function(
         rm(fields_this_col)
     }
     
-    ## build resource-level metadata list
-    metadata_list$resources <- list(
-        list(order = 1L,
-             schema = list(fields = fields),
-             dialect = list(csvddfVersion = 1.0,
-                            delimiter = sep,
-                            doubleQuote = FALSE,
-                            lineTerminator = '\\n',
-                            escapeChar = '\\',
-                            quoteChar = '\"',
-                            skipInitialSpace = TRUE,
-                            header = TRUE,
-                            caseSensitiveHeader = TRUE)
-             )
-    )
-    
     if (!is.null(metadata)) {
-      ## write metadata to separate file
-      write_metadata(metadata_list, metadata)
-      ## don't write the csv component if metadata_only is TRUE
-      if (!metadata_only) {
-        # write CSV
-        data.table::fwrite(x = x, file = file, sep = sep, dec = sep2, ...)
-      }
+        ## write metadata to separate file
+        write_metadata(metadata_list, metadata)
+        ## don't write the csv component if metadata_only is TRUE
+        if (!metadata_only) {
+            # write CSV
+            data.table::fwrite(x = x, file = file, sep = sep, dec = dec, ...)
+        }
     } else {
         # write metadata to file
         y <- paste0("---\n", yaml::as.yaml(metadata_list), "---\n")
         if (isTRUE(comment_header)){
-          con <- textConnection(y)
-          on.exist(close(con))
-          m <- readLines(con)
-          y <- paste0("#", m[-length(m)],collapse = "\n")
-          y <- c(y, "\n")
+            con <- textConnection(y)
+            on.exit(close(con))
+            m <- readLines(con)
+            y <- paste0("#", m[-length(m)],collapse = "\n")
+            y <- c(y, "\n")
         }
         if (missing(file)) {
             cat(y)
-            data.table::fwrite(x = x, file = "", sep = sep, dec = sep2, append = TRUE, col.names = TRUE, ...)
+            data.table::fwrite(x = x, file = "", sep = sep, dec = dec, append = TRUE, col.names = TRUE, ...)
         } else {
             cat(y, file = file)
             # append CSV to file
-            data.table::fwrite(x = x, file = file, sep = sep, dec = sep2, append = TRUE, col.names = TRUE, ...)
+            data.table::fwrite(x = x, file = file, sep = sep, dec = dec, append = TRUE, col.names = TRUE, ...)
         }
     }
     invisible(x)
