@@ -107,7 +107,9 @@ function(
         # write metadata to file
         y <- paste0("---\n", yaml::as.yaml(metadata_list), "---\n")
         if (isTRUE(comment_header)){
-          m <- readLines(textConnection(y))
+          con <- textConnection(y)
+          on.exist(close(con))
+          m <- readLines(con)
           y <- paste0("#", m[-length(m)],collapse = "\n")
           y <- c(y, "\n")
         }
