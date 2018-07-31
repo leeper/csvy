@@ -1,6 +1,6 @@
 detect_metadata <- function(file) {
     filedir <- dirname(file)
-    possible_metadata <- dir(filedir, pattern = "\\.json$|\\.yaml|\\.yml", full.names = TRUE) # <- case-sensitive pattern
+    possible_metadata <- dir(filedir, pattern = "\\.[Jj]{1}[Ss]{1}[Oo]{1}[Nn]{1}$|\\.[Yy]{1}[Aa]?[Mm]{1}[Ll]{1}", full.names = TRUE)
     if (length(possible_metadata) > 1) {
         # too many potential metadata files found
         stop("More than one yaml/yml/json files detected in same directory as data")

@@ -20,12 +20,12 @@ write_metadata <- function(metadata_list = NULL, file = NULL) {
   if (is.null(file) || !is.character(file)) stop("metadata (filename) must be provided")
   
   ## get file extension
-  ext <- tools::file_ext(file)
+  ext <- tolower(tools::file_ext(file))
   
   # write metadata to separate metadata file
-  if (tolower(ext) %in% c("yml", "yaml")) {
+  if (ext %in% c("yml", "yaml")) {
     cat(yaml::as.yaml(metadata_list), file = file)
-  } else if (tolower(ext) == "json") {
+  } else if (ext == "json") {
     jsonlite::write_json(metadata_list, path = file)
   } else {
     warning("'metadata' should be either a .json or .yaml file.") ## TODO stop?

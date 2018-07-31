@@ -12,7 +12,7 @@
 #'  
 #' @export
 read_metadata <- function(file) {
-    ext <- tools::file_ext(file)
+    ext <- tolower(tools::file_ext(file))
     if (ext %in% c("yaml", "yml")) {
         metadata_list <- yaml::yaml.load(paste(readLines(file), collapse = "\n"))
     } else if (ext == "json") {
